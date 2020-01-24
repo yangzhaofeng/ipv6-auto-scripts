@@ -115,6 +115,7 @@ fi
 if [[ "$OLD_PREFIX" == "$GET_PREFIX" ]]; then
 	exit 0
 else
+	systemctl restart dibbler-client.service
 	generate_radvd "$LAN_INTERFACE" "$GET_PREFIX" > $FILE_RADVD
 	systemctl restart radvd.service
 	generate_ndppd "$WAN_INTERFACE" "$LAN_INTERFACE" "$GET_PREFIX" > $FILE_NDPPD
