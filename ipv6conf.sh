@@ -120,9 +120,9 @@ else
 	systemctl restart radvd.service
 	generate_ndppd "$WAN_INTERFACE" "$LAN_INTERFACE" "$GET_PREFIX" > $FILE_NDPPD
 	systemctl restart ndppd.service
-	ifdown --ignore-errors $LAN_INTERFACE
+	/sbin/ifdown --ignore-errors $LAN_INTERFACE
 	generate_interface_lan "$LAN_INTERFACE" "$GET_PREFIX" > $FILE_INTERFACE_LAN
-	ifup --ignore-errors $LAN_INTERFACE
+	/sbin/ifup --ignore-errors $LAN_INTERFACE
 	generate_openvpn "$GET_PREFIX" 80 > $FILE_OVPN_IPV6
 	docker restart openvpn
 	generate_bind "$GET_PREFIX" > $FILE_BIND
@@ -130,12 +130,12 @@ else
 	generate_sniproxy "$GET_PREFIX" > $FILE_SNIPROXY
 	docker restart sniproxy-ipv6
 
-	ip6tables -t nat -A POSTROUTING -s $GET_PREFIX -o $VPN -j MASQUERADE
+	/usr/sbin/ip6tables -t nat -A POSTROUTING -s $GET_PREFIX -o $VPN -j MASQUERADE
 	if [[ ! -z "$OLD_PREFIX" ]]; then
-		ip6tables -t nat -D POSTROUTING -s $OLD_PREFIX -o grevpnhome -j MASQUERADE
+		/usr/sbin/ip6tables -t nat -D POSTROUTING -s $OLD_PREFIX -o grevpnhome -j MASQUERADE
 		/usr/local/network_config/down-vpn-rule.sh "/usr/local/network_config/ipv6conf.d/oldprefix" $VPN
 	fi
-	ip6tables-save > /etc/iptables/rules.v6
+	/usr/sbin/ip6tables-save > /etc/iptables/rules.v6
 
 	echo "$GET_PREFIX" > "$OLD_PREFIX_FILE"
 	/usr/local/network_config/up-vpn-rule.sh "/usr/local/network_config/ipv6conf.d/oldprefix" $VPN 15000
